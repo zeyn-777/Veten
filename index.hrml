@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZE AI | Şəhidlər Yaddaşı</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { 
+            background: radial-gradient(circle at center, #000c18 0%, #000000 100%); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Tam ekran tətbiq kimi */
+        }
+
+        /* Uçan Bayraqlar */
+        .flag-particle { position: fixed; bottom: -100px; font-size: 20px; animation: fly 15s linear infinite; z-index: 0; opacity: 0.5; pointer-events: none; }
+        @keyframes fly { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+
+        /* HEADER */
+        .top-bar {
+            padding: 15px 20px;
+            background: rgba(0, 74, 153, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* CHAT SAHƏSİ (ƏSAS) */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Mesaj Dizaynı */
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+            position: relative;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bot-message {
+            background: rgba(33, 37, 41, 0.9);
+            border: 1px solid #004a99;
+            color: #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, #004a99, #003366);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            box-shadow: 0 4px 15px rgba(0, 74, 153, 0.3);
+        }
+
+        /* Botun göndərdiyi Şəkil */
+        .bot-img {
+            width: 100%;
+            max-width: 250px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid #21a43d;
+        }
+
+        /* INPUT SAHƏSİ */
+        .input-area {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .chat-input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px 50px 15px 20px;
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        .chat-input:focus { border-color: #004a99; box-shadow: 0 0 15px rgba(0, 74, 153, 0.4); }
+        
+        .send-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #004a99;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .send-btn:hover { color: #ed2127; }
+
+        /* Scrollbar gizlət */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="flags"></div>
+
+    <div class="top-bar">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-robot text-primary fa-lg me-2"></i>
+            <span class="fw-bold" style="letter-spacing: 1px;">AZE AI <span class="text-danger">PRO</span></span>
+        </div>
+        <div class="small text-muted">
+            <i class="fas fa-clock text-success"></i> <span id="clock">00:00</span>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatBox">
+        <div class="message bot-message">
+            Salam! Mən <strong>AZE AI</strong>. <br>
+            Azərbaycan Şəhidləri haqqında istənilən məlumatı məndən soruşa bilərsiniz. <br>
+            <em>Məsələn: "Mübariz İbrahimov", "Polad Həşimov" və ya sadəcə "Xudayar".</em>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <div class="input-wrapper">
+            <input type="text" id="userInput" class="chat-input" placeholder="Sualınızı bura yazın..." autocomplete="off">
+            <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // === AZE AI BEYNİ (DATABASE) ===
+        // Buraya istədiyin qədər şəhid əlavə edə bilərsən
+        const memory = [
+            {
+                keys: ["mubariz", "mübariz", "ibrahimov"],
+                ad: "Mübariz Ağakərim oğlu İbrahimov",
+                status: "Milli Qəhrəman 🎖️",
+                rayon: "Biləsuvar",
+                img: "https://upload.wikimedia.org/wikipedia/az/2/29/M%C3%BCbariz_%C4%B0brahimov.jpg",
+                info: "2010-cu il iyunun 18-də təkbaşına düşmən ordusunun çoxsaylı qüvvəsini məhv edərək qəhrəmancasına şəhid olmuşdur."
+            },
+            {
+                keys: ["polad", "hashimov", "həşimov", "general"],
+                ad: "Polad İsrayıl oğlu Həşimov",
+                status: "General-Mayor 🌟",
+                rayon: "Qəbələ (Vəndam)",
+                img: "https://upload.wikimedia.org/wikipedia/az/d/d4/Polad_H%C3%A4%C5%9Fimov.jpg",
+                info: "2020-ci il iyulun 14-də Tovuz istiqamətində gedən şiddətli döyüşlərdə ön xəttə əsgərlərinin yanında olarkən şəhid olmuşdur."
+            },
+            {
+                keys: ["xudayar", "yusifzade", "yusifzadə"],
+                ad: "Xudayar Müslüm oğlu Yusifzadə",
+                status: "Vətən Müharibəsi Şəhidi 🕊️",
+                rayon: "Bərdə",
+                img: "https://upload.wikimedia.org/wikipedia/az/d/d5/Xudayar_Yusifzad%C3%A4.jpg",
+                info: "'Vətən yaxşıdır' təsnifi ilə xalqımızın qəlbində taxt quran qəhrəmanımız. Zəngilan döyüşlərində şəhidlik zirvəsinə ucalıb."
+            },
+            {
+                keys: ["cebrayil", "cəbrayıl", "dovletzade"],
+                ad: "Cəbrayıl Dövlətzadə",
+                status: "Vətən Müharibəsi Şəhidi ⚔️",
+                rayon: "Sumqayıt",
+                img: "https://upload.wikimedia.org/wikipedia/az/4/44/C%C3%A4bray%C4%B1l_D%C3%B6vl%C3%A4tzad%C3%A4.jpg",
+                info: "Polad Həşimovun qisasını alacağına söz vermiş və bu yolda qəhrəmancasına vuruşaraq şəhid olmuşdur."
+            },
+            {
+                keys: ["albert", "aqarunov"],
+                ad: "Albert Aqarunov",
+                status: "Milli Qəhrəman 🇦🇿🇮🇱",
+                rayon: "Bakı",
+                img: "https://upload.wikimedia.org/wikipedia/az/0/07/Albert_Aqarunov.jpg",
+                info: "Şuşa uğrunda gedən döyüşlərdə əfsanəvi tank komandiri kimi tanınır. Bakıda onun şərəfinə heykəl ucaldılıb."
+            }
+        ];
+
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        // Mesaj göndərmək
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // İstifadəçi mesajını ekrana vur
+            addMessage(text, 'user');
+            userInput.value = '';
+
+            // Botun "düşünməsi" (Gecikmə)
+            setTimeout(() => {
+                analyzeText(text);
+            }, 600);
+        }
+
+        // Enter düyməsi
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Mətnin analizi (AI Hissəsi)
+        function analyzeText(text) {
+            const lowerText = text.toLowerCase();
+            
+            // 1. Salamlaşma
+            if (lowerText.includes('salam') || lowerText.includes('salam aleykum')) {
+                addMessage("Aleykum salam! Vətən qəhrəmanlarından kimi axtarırsınız?", 'bot');
+                return;
+            }
+            if (lowerText.includes('necesen') || lowerText.includes('necəsən')) {
+                addMessage("Təşəkkürlər! Mən AZE PRO tərəfindən yaradılmış Süni Zəkayam və xidmətinizdəyəm.", 'bot');
+                return;
+            }
+
+            // 2. Məlumat bazasında axtarış
+            let found = null;
+            
+            // Sadə alqoritm: Yazılan sözlərdən hər hansı biri açar sözlərə uyğundursa tap
+            for (let item of memory) {
+                for (let key of item.keys) {
+                    if (lowerText.includes(key)) {
+                        found = item;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+
+            // 3. Nəticəni göstər
+            if (found) {
+                const responseHTML = `
+                    <strong>${found.ad}</strong> <br>
+                    <span class="badge bg-primary">${found.status}</span> <br>
+                    <small>📍 ${found.rayon}</small> <br><br>
+                    ${found.info} <br>
+                    <img src="${found.img}" class="bot-img" onerror="this.style.display='none'">
+                `;
+                addMessage(responseHTML, 'bot');
+            } else {
+                addMessage("Üzr istəyirəm, bu şəhid haqqında məlumat bazamda hələ yoxdur. Zəhmət olmasa adını dəqiq yazdığınızdan əmin olun.", 'bot');
+            }
+        }
+
+        // Mesajı ekrana əlavə edən funksiya
+        function addMessage(html, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}-message`;
+            div.innerHTML = html;
+            chatBox.appendChild(div);
+            // Avtomatik aşağı sürüşdür
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Saat
+        setInterval(() => {
+            const d = new Date();
+            const timeString = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = timeString;
+        }, 1000);
+
+        // Uçan Bayraqlar
+        function flyFlags() {
+            const box = document.getElementById('flags');
+            setInterval(() => {
+                const f = document.createElement('div');
+                f.className = 'flag-particle';
+                f.innerText = "🇦🇿";
+                f.style.left = Math.random() * 100 + "vw";
+                box.appendChild(f);
+                setTimeout(() => f.remove(), 15000);
+            }, 2000);
+        }
+        flyFlags();
+
+    </script>
+</body>
+</html>
