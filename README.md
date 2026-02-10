@@ -1,2 +1,0 @@
-# Veten
-Azerbaycan_sehidleri
