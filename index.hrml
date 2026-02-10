@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Azərbaycan Şəhidləri İndeksi | AZE PRO</title>
+    <meta name="description" content="Azərbaycanın birinci və ikinci Qarabağ müharibəsi şəhidlərinin tam siyahısı, şəkilləri və bioqrafiyaları. Şəhidlərimizi unutmadıq!">
+    <meta name="keywords" content="şəhidlər, Azərbaycan şəhidləri, 44 günlük müharibə, Qarabağ şəhidləri, şəhid siyahısı">
+    <meta name="author" content="AZE PRO">
+    
+    <meta property="og:title" content="Azərbaycan Şəhidləri İndeksi">
+    <meta property="og:description" content="Bütün şəhidlərimiz bir arada.">
+    <meta property="og:image" content="assets/img/logo.jpg">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero { background: #004a99; color: white; padding: 100px 0; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1590073844006-3a44a7639d5e'); background-size: cover; background-position: center; }
+        .category-card { border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; }
+        .category-card:hover { transform: scale(1.05); background: #ed2127; color: white; }
+    </style>
+</head>
+<body>
+
+<header class="hero text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold">ŞƏHİDLƏRİMİZ</h1>
+        <p class="lead">Tarixi yaddaşın rəqəmsal arxivi</p>
+    </div>
+</header>
+
+<main class="container my-5">
+    <div class="row text-center mb-5">
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 category-card">
+                <h3>1990-1994</h3>
+                <p>I Qarabağ Müharibəsi</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 category-card">
+                <h3>2016</h3>
+                <p>Aprel Döyüşləri</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 category-card">
+                <h3>2020</h3>
+                <p>Vətən Müharibəsi</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card p-4 category-card">
+                <h3>2023</h3>
+                <p>Antiterror Tədbirləri</p>
+            </div>
+        </div>
+    </div>
+
+    <section id="search-section">
+        <h2 class="text-center mb-4">Şəhid Axtarışı</h2>
+        <input type="text" id="searchInput" class="form-control form-control-lg shadow-sm" placeholder="Məs: Mübariz İbrahimov və ya Cəbrayıl rayonu">
+    </section>
+</main>
+
+<footer class="bg-dark text-white text-center py-4 mt-5">
+    <p>&copy; 2026 AZE PRO - Şəhidlərin Əziz Xatirəsinə</p>
+</footer>
+
+</body>
+</html>
