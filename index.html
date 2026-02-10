@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azərbaycan Şəhidləri İndeksi | AZE PRO</title>
+    
+    <meta name="description" content="Azərbaycan şəhidlərinin rəqəmsal yaddaş arxivi, namaz vaxtları və dini kəlamlar.">
+    <meta name="keywords" content="şəhidlər, azərbaycan, aze pro, vətən müharibəsi, namaz vaxtları">
+    <meta name="author" content="AZE PRO">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root { --az-blue: #004a99; --az-red: #ed2127; --az-green: #21a43d; }
+        body { background: #05070a; color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+
+        /* Uçan Bayraqlar */
+        .flag-particle { position: fixed; bottom: -50px; font-size: 22px; animation: fly 12s linear infinite; z-index: 1000; opacity: 0.6; pointer-events: none; }
+        @keyframes fly { 0% { transform: translateY(0) rotate(0deg); left: var(--start-x); opacity: 0; } 100% { transform: translateY(-110vh) rotate(360deg); left: var(--end-x); opacity: 0; } }
+
+        /* Tərcümə Paneli (Sol) */
+        .lang-panel { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); z-index: 3000; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 50px; border: 1px solid var(--az-blue); backdrop-filter: blur(5px); }
+        .lang-panel img { width: 28px; height: 28px; border-radius: 50%; display: block; margin: 12px 0; cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
+        .lang-panel img:hover { transform: scale(1.2); border-color: white; }
+
+        /* Üst İnfo Bar */
+        .info-header { background: rgba(0,0,0,0.95); border-bottom: 2px solid var(--az-red); padding: 12px 0; position: sticky; top: 0; z-index: 2000; }
+        .clock-box { color: var(--az-green); font-weight: bold; font-family: 'monospace'; font-size: 1.1rem; }
+        .quote-box { color: #ffc107; font-style: italic; font-size: 0.9rem; border-left: 3px solid var(--az-blue); padding-left: 12px; }
+
+        /* Şəhid Kartları */
+        .sh-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; transition: 0.4s; overflow: hidden; height: 100%; }
+        .sh-card:hover { transform: translateY(-8px); border-color: var(--az-red); box-shadow: 0 15px 30px rgba(237,33,39,0.2); }
+        .sh-img { height: 250px; object-fit: cover; width: 100%; filter: grayscale(20%); }
+
+        .search-bar { background: rgba(255,255,255,0.05) !important; border: 2px solid var(--az-blue) !important; color: white !important; border-radius: 50px !important; padding: 15px 25px !important; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div id="flag-container"></div>
+
+    <div class="lang-panel">
+        <img src="https://flagcdn.com/w40/az.png" onclick="changeLang('az')" title="Azərbaycan">
+        <img src="https://flagcdn.com/w40/tr.png" onclick="changeLang('tr')" title="Türkçe">
+        <img src="https://flagcdn.com/w40/ru.png" onclick="changeLang('ru')" title="Русский">
+        <img src="https://flagcdn.com/w40/gb.png" onclick="changeLang('en')" title="English">
+    </div>
+
+    <div class="info-header">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center text-center text-md-start">
+            <div>
+                <div class="clock-box" id="clock">00:00:00</div>
+                <small class="text-muted" id="date-display"></small>
+            </div>
+            <div class="quote-box mx-lg-4 my-2 my-md-0" id="religious-quote">"Allah yolunda öldürülənlərə ölü deməyin!"</div>
+            <div class="small">
+                <span class="text-success fw-bold">NAMAZ:</span><br>
+                Bakı: 12:47 | Gəncə: 12:59
+            </div>
+        </div>
+    </div>
+
+    <header class="container text-center py-5">
+        <h1 class="display-3 fw-bold mb-0" id="main-title">ŞƏHİDLƏRİMİZ</h1>
+        <p class="lead opacity-50" id="sub-title">Tarixi yaddaşın rəqəmsal arxivi</p>
+    </header>
+
+    <main class="container">
+        <div class="search-area mb-5">
+            <input type="text" id="searchInput" class="form-control search-bar" placeholder="Şəhid adı, soyadı və ya rayon...">
+        </div>
+
+        <div class="row g-4" id="sehid-list">
+            <div class="text-center w-100 py-5">
+                <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-3">Mərkəzi bazadan məlumatlar yüklənir...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-5 py-5 border-top border-secondary bg-black">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="fw-bold">BİZİMLƏ ƏLAQƏ</h5>
+                    <p class="mb-1"><i class="fab fa-telegram text-info"></i> Telegram: <a href="https://t.me/Aze_Pro_Official" class="text-info text-decoration-none">@Aze_Pro_Official</a></p>
+                    <p><i class="fas fa-envelope text-info"></i> GMAIL: <a href="mailto:azeproOfficial@gmail.com" class="text-info text-decoration-none">azeproOfficial@gmail.com</a></p>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <h5 class="text-uppercase fw-bold">Müəllif: AZE PRO</h5>
+                    <p class="text-muted small mb-2">Bütün hüquqlar qorunur &copy; 2026</p>
+                    <div class="badge bg-success px-3 py-2 rounded-pill">
+                        <i class="fas fa-circle small me-1"></i> Onlayn: <span id="online-count">1</span> nəfər
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // SAAT VƏ TARİX
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('az-AZ');
+            document.getElementById('date-display').innerText = now.toLocaleDateString('az-AZ', { weekday: 'long', day: 'numeric', month: 'long' });
+            // Onlayn sayğac simulyasiyası
+            document.getElementById('online-count').innerText = Math.floor(Math.random() * 7) + 1;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // DİNİ KƏLAMLAR
+        const quotes = [
+            "Allah yolunda öldürülənlərə ölü deməyin, onlar diridirlər.",
+            "Şəhidlik ən ali zirvədir.",
+            "Vətən sevgisi imandandır.",
+            "Cənnət qılıncların kölgəsi altındadır."
+        ];
+        document.getElementById('religious-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+
+        // MƏLUMAT BAZASI BAĞLANTISI (API)
+        async function loadData() {
+            try {
+                // Burada mən sənə toplu faylı bağlamaq üçün link verəcəyəm
+                const res = await fetch('https://raw.githubusercontent.com/zeyn-777/Vet/main/data.json');
+                const data = await res.json();
+                renderCards(data);
+            } catch (err) {
+                document.getElementById('sehid-list').innerHTML = "<p class='text-center text-muted'>Məlumat yüklənərkən xəta baş verdi. Zəhmət olmasa data.json faylını yoxlayın.</p>";
+            }
+        }
+
+        function renderCards(data) {
+            const list = document.getElementById('sehid-list');
+            list.innerHTML = data.map(s => `
+                <div class="col-md-3 sehid-item">
+                    <div class="card sh-card text-white">
+                        <img src="${s.sekil}" class="sh-img" onerror="this.src='https://via.placeholder.com/300x400?text=AZE+PRO'">
+                        <div class="card-body">
+                            <span class="badge bg-danger mb-2" style="font-size:0.6rem;">${s.bolme}</span>
+                            <h6 class="card-title fw-bold mb-1">${s.ad}</h6>
+                            <p class="card-text small opacity-50"><i class="fas fa-map-marker-alt"></i> ${s.rayon}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // AXTARIŞ
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            document.querySelectorAll('.sehid-item').forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(val) ? "block" : "none";
+            });
+        });
+
+        // TƏRCÜMƏ
+        function changeLang(lang) {
+            const t = {
+                az: { title: "ŞƏHİDLƏRİMİZ", sub: "Tarixi yaddaşın rəqəmsal arxivi" },
+                tr: { title: "ŞEHİTLERİMİZ", sub: "Tarihi hafızanın dijital arşivi" },
+                ru: { title: "НАШИ ШЕХИДЫ", sub: "Цифровой архив исторической памяти" },
+                en: { title: "OUR MARTYRS", sub: "Digital archive of historical memory" }
+            };
+            document.getElementById('main-title').innerText = t[lang].title;
+            document.getElementById('sub-title').innerText = t[lang].sub;
+        }
+
+        // UÇAN BAYRAQLAR
+        function createFlags() {
+            const container = document.getElementById('flag-container');
+            for (let i = 0; i < 18; i++) {
+                let f = document.createElement('div');
+                f.className = 'flag-particle';
+                f.innerText = "🇦🇿";
+                f.style.setProperty('--start-x', Math.random() * 100 + "vw");
+                f.style.setProperty('--end-x', (Math.random() * 100 - 10) + "vw");
+                f.style.animationDelay = Math.random() * 10 + "s";
+                container.appendChild(f);
+            }
+        }
+
+        loadData();
+        createFlags();
+    </script>
+</body>
+</html>
